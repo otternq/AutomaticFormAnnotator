@@ -16,5 +16,5 @@ Uses stored information about forms to allow keyword searches on resulting pages
 Platform
 -----
 
-<b>Language</b>: Java
+<b>Language</b>: Java<br />
 <b>Hosting</b>: Google App Engine
