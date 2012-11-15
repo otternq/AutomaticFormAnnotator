@@ -12,3 +12,9 @@ A set of classes and scripts that will find and evaludate forms to store the inf
 Form Submission
 ----
 Uses stored information about forms to allow keyword searches on resulting pages
+
+Platform
+-----
+
+<b>Language</b>: Java
+<b>Hosting</b>: Google App Engine
