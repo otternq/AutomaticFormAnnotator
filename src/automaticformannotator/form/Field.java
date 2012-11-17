@@ -3,6 +3,11 @@ package automaticformannotator.form;
 import java.util.ArrayList;
 import java.util.Collection;
 
+/**
+ * Represents HTML Form Fields
+ * @author Nick Otter <otternq@gmail.com>
+ *
+ */
 public class Field {
 
 	/**

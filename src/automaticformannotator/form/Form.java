@@ -1,7 +1,7 @@
 package automaticformannotator.form;
 
+import java.util.ArrayList;
 import java.util.Collection;
-
 
 /**
  * Represents a HTML form
@@ -14,6 +14,11 @@ public class Form {
 	private String url;
 	private Collection<Field> fields;
 	private Collection<Attribute> attributes;
+	
+	public Form() {
+		this.fields = new ArrayList<Field>();
+		this.attributes = new ArrayList<Attribute>();
+	}
 	
 	/**
 	 * @return the url where this form was located

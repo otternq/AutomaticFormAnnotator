@@ -1,5 +1,11 @@
 package automaticformannotator.form;
 
+/**
+ * Represents attributes of HTML elements
+ * 
+ * @author Nick Otter <otternq@gmail.com>
+ *
+ */
 public class Attribute {
 
 	/**
