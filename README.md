@@ -15,7 +15,7 @@ Uses stored information about forms to allow keyword searches on resulting pages
 
 Requirements
 ----
-Automatic Form Annotator requires the [jSoup](http://jsoup.org/) .jar to be installed in /war/WEB-INF/lib/
+Automatic Form Annotator requires the [jSoup](http://jsoup.org/) .jar to be installed in /war/WEB-INF/lib/ this .jar is not stored in this GitHub repository and must be added manually
 
 Platform
 -----
