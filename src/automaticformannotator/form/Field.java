@@ -5,7 +5,6 @@ import java.util.Collection;
 
 import com.google.appengine.api.datastore.Key;
 
-import java.util.Date;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
