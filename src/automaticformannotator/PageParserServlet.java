@@ -56,9 +56,18 @@ public class PageParserServlet extends HttpServlet {
 				actionAttr.setName("action");
 				actionAttr.setValue(formElement.attr("action"));
 				
+				Attribute methodAttr = new Attribute();
+				methodAttr.setName("method");
+				if (formElement.attr("method") == null) {
+					methodAttr.setValue("GET");
+				} else {
+					methodAttr.setValue(formElement.attr("method"));
+				}
+				
 				Form form = new Form();
 				form.addAttributes(idAttr);
 				form.addAttributes(actionAttr);
+				form.addAttributes(methodAttr);
 				
 				// Pull out all the relevant inputs. This select might need to be changed
 				Elements inputs = formElement.select("input[type~=.+][name~=.+]:not([type=submit]):not([type=hidden])");
@@ -80,7 +89,7 @@ public class PageParserServlet extends HttpServlet {
 			
 			// At this point 'form' can be saved to disk.
 			log.info("Successfully parsed the form. Now saving to datastore.");
-			// Get the persistance manager from the static persistance manager factory
+			// Get the persistence manager from the static persistence manager factory
 			PersistenceManager pm = PMF.get().getPersistenceManager();
 
 	        try {
@@ -108,8 +117,7 @@ public class PageParserServlet extends HttpServlet {
 		try {
 			rd.forward(req, resp);
 		} catch (ServletException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.warning("Could not forward. " + e.getMessage());
 		}
 	}
 }
