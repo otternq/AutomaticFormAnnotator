@@ -1,17 +1,20 @@
-AutomaticFormAnnotator
+Automatic Form Annotator
 ======================
 
-About
------
-This is a semester long team project for [CS 360](http://wiki.cs.uidaho.edu/index.php/CS_360) (Intro to Databases) at the University of Idaho
 
 Table of Contents
 -----
+- [About](#about)
 - [Form Discovery](#form-discovery)
 - [Form Submission](#form-submission)
 - [Requirements](#requirements)
 - [Platform](#platform)
 - [References](#references)
+
+About
+-----
+This is a semester long team project for [CS 360](http://wiki.cs.uidaho.edu/index.php/CS_360) (Intro to Databases) at the University of Idaho
+
 
 Form Discovery
 ---
