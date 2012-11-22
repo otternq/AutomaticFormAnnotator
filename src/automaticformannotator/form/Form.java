@@ -1,6 +1,14 @@
 package automaticformannotator.form;
 
 import java.util.ArrayList;
+
+import com.google.appengine.api.datastore.Key;
+
+import java.util.Date;
+import javax.jdo.annotations.IdGeneratorStrategy;
+import javax.jdo.annotations.PersistenceCapable;
+import javax.jdo.annotations.Persistent;
+import javax.jdo.annotations.PrimaryKey;
 import java.util.Collection;
 
 /**
@@ -9,10 +17,23 @@ import java.util.Collection;
  * @author Nick Otter <otternq@gmail.com>
  *
  */
+@PersistenceCapable
 public class Form {
+	
+	/**
+	 * The key for Google App Engine DataStore
+	 */
+	@PrimaryKey
+    @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
+    private Key key;
 
+	@Persistent
 	private String url;
+	
+	@Persistent
 	private Collection<Field> fields;
+	
+	@Persistent
 	private Collection<Attribute> attributes;
 	
 	public Form() {

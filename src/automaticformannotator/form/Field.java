@@ -3,21 +3,39 @@ package automaticformannotator.form;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import com.google.appengine.api.datastore.Key;
+
+import java.util.Date;
+import javax.jdo.annotations.IdGeneratorStrategy;
+import javax.jdo.annotations.PersistenceCapable;
+import javax.jdo.annotations.Persistent;
+import javax.jdo.annotations.PrimaryKey;
+
 /**
  * Represents HTML Form Fields
  * @author Nick Otter <otternq@gmail.com>
  *
  */
+@PersistenceCapable
 public class Field {
+	
+	/**
+	 * The key for Google App Engine DataStore
+	 */
+	@PrimaryKey
+    @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
+    private Key key;
 
 	/**
 	 * The type of Field being stored
 	 */
+	@Persistent
 	private String type;
 	
 	/**
 	 * The attributes describing the Field
 	 */
+	@Persistent
 	private Collection<Attribute> attributes;
 	
 	public Field() {
