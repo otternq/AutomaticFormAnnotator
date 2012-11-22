@@ -27,3 +27,13 @@ Platform
 
 ####jSoup####
 jSoup is a library that allows HTML parsing based on CSS style selection. It can be downloaded [here](http://jsoup.org/).
+
+####JDO####
+We chose JDO as our storage mechanism so that we were not restricted to the Google App Engine DataStore storage engine.
+Using JDO allows the system to write its class structure without thought of storage engine.
+
+References
+------
+- [Google App Engine - JDO Documentation](https://developers.google.com/appengine/docs/java/datastore/jdo/creatinggettinganddeletingdata)
+- [Oracle/Java - JDO Documentation](http://www.oracle.com/technetwork/java/index-jsp-135919.html)
+- [jsoup Documentation](http://jsoup.org/apidocs/)
