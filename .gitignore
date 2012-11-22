@@ -9,3 +9,6 @@
 .classpath
 .project
 .settings
+
+#google app engine#
+/war/WEB-INF/appengine-generated/local_db.bin
