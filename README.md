@@ -26,4 +26,4 @@ Platform
 ###Dependencies###
 
 ####jSoup####
-jSoup is a library that allows HTML parsing based on CSS style selection. It can be downloaded [here](http://jsoup.org/)
+jSoup is a library that allows HTML parsing based on CSS style selection. It can be downloaded [here](http://jsoup.org/).
