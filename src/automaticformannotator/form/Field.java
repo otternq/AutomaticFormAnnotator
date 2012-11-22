@@ -2,6 +2,7 @@ package automaticformannotator.form;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import com.google.appengine.api.datastore.Key;
 
@@ -35,7 +36,7 @@ public class Field {
 	 * The attributes describing the Field
 	 */
 	@Persistent
-	private Collection<Attribute> attributes;
+	private List<Attribute> attributes;
 	
 	public Field() {
 		
@@ -59,7 +60,7 @@ public class Field {
 	/**
 	 * @return the attributes
 	 */
-	public Collection<Attribute> getAttributes() {
+	public List<Attribute> getAttributes() {
 		return this.attributes;
 	}
 	

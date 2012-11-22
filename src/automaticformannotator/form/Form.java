@@ -1,6 +1,7 @@
 package automaticformannotator.form;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.google.appengine.api.datastore.Key;
 
@@ -9,7 +10,6 @@ import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
-import java.util.Collection;
 
 /**
  * Represents a HTML form
@@ -31,10 +31,10 @@ public class Form {
 	private String url;
 	
 	@Persistent
-	private Collection<Field> fields;
+	private List<Field> fields;
 	
 	@Persistent
-	private Collection<Attribute> attributes;
+	private List<Attribute> attributes;
 	
 	public Form() {
 		this.fields = new ArrayList<Field>();
@@ -58,7 +58,7 @@ public class Form {
 	/**
 	 * @return the field to store
 	 */
-	public Collection<Field> getFields() {
+	public List<Field> getFields() {
 		return this.fields;
 	}
 	
@@ -72,7 +72,7 @@ public class Form {
 	/**
 	 * @return the attributes
 	 */
-	public Collection<Attribute> getAttributes() {
+	public List<Attribute> getAttributes() {
 		return this.attributes;
 	}
 	
