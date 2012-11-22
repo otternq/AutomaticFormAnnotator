@@ -13,8 +13,17 @@ Form Submission
 ----
 Uses stored information about forms to allow keyword searches on resulting pages
 
+Requirements
+----
+Automatic Form Annotator requires the [jSoup](http://jsoup.org/) .jar to be installed in /war/WEB-INF/lib/
+
 Platform
 -----
 
 <b>Language</b>: Java<br />
 <b>Hosting</b>: Google App Engine
+
+###Dependencies###
+
+####jSoup####
+jSoup is a library that allows HTML parsing based on CSS style selection. It can be downloaded [here](http://jsoup.org/)
