@@ -66,6 +66,7 @@ public class AutomaticFormAnnotatorServlet extends HttpServlet {
 			}
 			
 			// At this point 'form' can be saved to disk.
+			resp.getWriter().println("Successfully parsed web page");
 		}
 		catch (IOException e) 
 		{
