@@ -5,6 +5,14 @@ About
 -----
 This is a semester long team project for [CS 360](http://wiki.cs.uidaho.edu/index.php/CS_360) (Intro to Databases) at the University of Idaho
 
+Table of Contents
+-----
+- [Form Discovery](#form-discovery)
+- [Form Submission](#form-submission)
+- [Requirements](#requirements)
+- [Platform](#platform)
+- [References](#references)
+
 Form Discovery
 ---
 A set of classes and scripts that will find and evaludate forms to store the information required to submit the form automatically
