@@ -48,7 +48,7 @@ public class Attribute {
 	 * @param name the name to store
 	 */
 	public void setName(String name) {
-		this.name = name;
+		this.name = name.toLowerCase();
 	}
 
 	/**
