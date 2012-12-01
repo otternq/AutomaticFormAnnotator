@@ -1,5 +1,7 @@
 package automaticformannotator.form;
 
+import automaticformannotator.util.Tag;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +37,23 @@ public class Form {
 	
 	@Persistent
 	private List<Attribute> attributes;
+	
+	/**
+	 * @return the tags
+	 */
+	public List<Tag> getTags() {
+		return tags;
+	}
+
+	/**
+	 * @param tags the tags to set
+	 */
+	public void setTags(Tag tag) {
+		this.tags.add(tag);;
+	}
+
+	@Persistent
+	private List<Tag> tags;
 	
 	public Form() {
 		this.fields = new ArrayList<Field>();
