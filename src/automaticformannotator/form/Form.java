@@ -52,6 +52,13 @@ public class Form {
 		this.tags.add(tag);;
 	}
 
+	/**
+	 * @return the key
+	 */
+	public Key getKey() {
+		return key;
+	}
+
 	@Persistent
 	private List<Tag> tags;
 	

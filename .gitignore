@@ -11,4 +11,5 @@
 .settings
 
 #google app engine#
-.apt_generated/
+*apt_generated*
+*.bin

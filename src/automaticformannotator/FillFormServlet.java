@@ -19,7 +19,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
+import javax.jdo.JDOUnsupportedOptionException;
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 
@@ -33,6 +35,7 @@ import automaticformannotator.form.Form;
  */
 @SuppressWarnings("serial")
 public class FillFormServlet extends HttpServlet {
+	private static final Logger log = Logger.getLogger(PageParserServlet.class.getName());
 
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
@@ -50,7 +53,7 @@ public class FillFormServlet extends HttpServlet {
 				resp.getWriter().println("There are results");
 				
 				for (Form p : results) {// Process result p
-					resp.getWriter().println("Start Form");
+					log.info("Starting Form");
 					
 					try {
 						//get the form attributes so that they can be searched
@@ -65,20 +68,35 @@ public class FillFormServlet extends HttpServlet {
 						
 						//add the default values for all form fields
 						for ( Field f : p.getFields() ) {
+							log.info("handling fields");
+							
 							//get the fields attributes so that they can be searched
 							List<Attribute> fieldAttributes = f.getAttributes();
 							
-							//get the field name and default value
-							String fieldName = AttributeHelper.getAttributeByName("name", fieldAttributes).getValue();
-							String fieldValue = AttributeHelper.getAttributeByName("value", fieldAttributes).getValue();
+							String fieldName = "";
+							String fieldValue = "";
 							
-							//add these to the parameters list
-							params.add(fieldName + "=" + URLEncoder.encode(fieldValue, "UTF-8"));
+							try {
+								//get the field name and default value
+								fieldName = AttributeHelper.getAttributeByName("name", fieldAttributes).getValue();
+								fieldValue = AttributeHelper.getAttributeByName("value", fieldAttributes).getValue();
+								
+								//add these to the parameters list
+								params.add(fieldName + "=" + URLEncoder.encode(fieldValue, "UTF-8"));
+							} catch (Exception ae) {
+								if (ae.getMessage().compareTo("AttributeNotFound") == 0) {
+									log.info("could not find attribute");
+								}
+							}
+							
+							
 						}
 						
-						String requestBody = FillFormServlet.implodeArray((String[])params.toArray(), "&");
+						String temp[] = new String[8];
 						
-						HttpURLConnection con = (HttpURLConnection) new URL(action).openConnection();
+						String requestBody = FillFormServlet.implodeArray(params.toArray(temp), "&");
+						resp.getWriter().println(p.getUrl() + action);
+						HttpURLConnection con = (HttpURLConnection) new URL(p.getUrl() + action).openConnection();
 						con.setRequestMethod(method);
 						
 						DataOutputStream wr = new DataOutputStream(con.getOutputStream ());
@@ -87,11 +105,26 @@ public class FillFormServlet extends HttpServlet {
 						wr.flush();
 						wr.close();
 						
+						//retrieve the response
 						InputStream response = con.getInputStream();
+						
+						
+						//prepare response for storage in datastore
+						String resString = this.slurp(response);
+						
+						
+						Response res = new Response();
+						res.setResponse(resString);
+						res.setFormKey(p.getKey());
+						
+						//store the response
+						pm.makePersistent(res);
+						
 						con.disconnect();
 						
 					} catch (Exception e) {//an attribute is not specified
-						
+						resp.getWriter().println("There was an exception "+ e.getMessage() + " ");
+						e.printStackTrace();
 					}
 					
 				}
@@ -100,8 +133,11 @@ public class FillFormServlet extends HttpServlet {
 				
 			}
 			
+		} catch (JDOUnsupportedOptionException e) {
+			System.out.print("JDO is not supported");
+			
 		} finally {
-			q.cancelAll();
+			//q.cancelAll();
 		}
 		
 	}//END function doGet
@@ -134,6 +170,21 @@ public class FillFormServlet extends HttpServlet {
 		}
 	
 		return output;
+	}
+	
+	/**
+	 * Converts an InputStream to a string
+	 * @param in The InputStream to convert
+	 * @return string
+	 * @throws IOException
+	 */
+	public static String slurp (InputStream in) throws IOException {
+	    StringBuffer out = new StringBuffer();
+	    byte[] b = new byte[4096];
+	    for (int n; (n = in.read(b)) != -1;) {
+	        out.append(new String(b, 0, n));
+	    }
+	    return out.toString();
 	}
 	
 }
