@@ -1,5 +1,6 @@
 package automaticformannotator.form;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.jdo.annotations.IdGeneratorStrategy;
@@ -21,9 +22,15 @@ public class Response {
 	
 	private Key formKey;
 	
+	private Date date;
+	
 	private String response;
 	
 	private List<String> keywords;
+	
+	public Response() {
+		this.date = new Date();
+	}
 
 	/**
 	 * @return the formKey

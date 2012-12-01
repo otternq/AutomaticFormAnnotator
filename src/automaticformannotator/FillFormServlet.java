@@ -1,7 +1,7 @@
 package automaticformannotator;
 
 /**
- * @todo Need to look at converting to jsoup
+ * TODO Need to look at converting to jsoup
  */
 
 import automaticformannotator.form.*;
