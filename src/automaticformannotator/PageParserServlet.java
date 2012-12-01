@@ -43,7 +43,7 @@ public class PageParserServlet extends HttpServlet {
 			// Have Jsoup try to retrieve and parse the page
 			Document doc = Jsoup.connect(page).get();
 			// Select all the form elements that have an action and id defined
-			Elements formElements = doc.select("form[action~=.+][id~=.+]");
+			Elements formElements = doc.select("form[action~=.+]");
 			// forms is the list of forms that we create
 			ArrayList<Form> forms = new ArrayList<Form>();
 			
@@ -65,6 +65,7 @@ public class PageParserServlet extends HttpServlet {
 				}
 				
 				Form form = new Form();
+				form.setUrl(page);
 				form.addAttributes(idAttr);
 				form.addAttributes(actionAttr);
 				form.addAttributes(methodAttr);

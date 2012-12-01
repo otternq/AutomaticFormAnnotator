@@ -48,7 +48,7 @@ public class Form {
 	/**
 	 * @param tags the tags to set
 	 */
-	public void setTags(Tag tag) {
+	public void addTag(Tag tag) {
 		this.tags.add(tag);;
 	}
 
