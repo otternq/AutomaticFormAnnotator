@@ -65,11 +65,16 @@
 			  output += '  <div class="form-tags">';
 			  $.each(form.tags, function(index, tag){
 				  output += '    <span class="form-tag"><span class="form-tag-value">' + tag.value + '</span>';
-				  output += '<a class="form-tag-delete" href="#">X</a></span>\n';
+				  output += '<a class="form-tag-delete" href="#">x</a></span>\n';
 			  });
 			  output += '    <input type="text" class="add-tag-input" />\n';
 			  output += '    <a class="form-tag-add" href="#">Add</a>';
 			  output += '  </div>\n';
+        output += '  <div class="result-fields">\n';
+        $.each(form.fields, function(index, field) {
+          output += '    <span class="result-field">' + field.type + '</span>\n';
+        });
+        output += '  </div>\n';
 			  output += '</div>\n';
 		  });
 	    $("#forms").html(output);
@@ -77,13 +82,13 @@
 		  // make the results div html content
 		  output = "";
 		  $.each(forms, function(index, form){
-			  output += '<div class="result" formid="' + form.key + '" tags="';
+			  output += '<div class="result" formid="' + form.key + '" localid="' + index + '" tags="';
 			  $.each(form.tags, function(index, tag){
 				  output += ' ' + tag.value + ' ';
 			  });
 			  output += '">\n';
 			  output += '  <div class="result-check-container">\n';
-			  output += '    <input type="checkbox" />\n';
+			  output += '    <input type="checkbox" class="result-checkbox" />\n';
 			  output += '  </div>';
 			  output += '  <div class="result-item-container">\n';
 			  output += '    <div class="result-title">' + parseURL(form.url).host + '</div>\n';
@@ -141,8 +146,8 @@
     	}
     	else {
     		var tag = $(this).val();
-    		$('.result').hide();
-    		$('.result[tags~="' + tag + '"]').show();
+    		$('#results .result').hide();
+    		$('#results .result[tags~="' + tag + '"]').show();
     		$("#results").show();
     		$("#forms").hide();
     	}
@@ -158,23 +163,56 @@
     		repopulateForms();
     	});
     });
+    
+    // checkbox - adding to checked form list
+    $(".result-checkbox").live("change", function() {
+    	var localid = $(this).closest(".result").attr("localid");
+    	var form = currentforms[localid];
+    	
+    	if ($(this).is(":checked") == true) {
+        $('#selectedforms .result[formid="' + form.key + '"]').remove();
+       	var output = "";
+       	output += '<div class="result" formid="' + form.key + '" localid="' + localid + '">\n';
+        output += '  <div class="result-check-container">\n';
+        output += '    <input type="checkbox" class="result-checkbox" checked />\n';
+        output += '  </div>';
+        output += '  <div class="result-item-container">\n';
+        output += '    <div class="result-title">' + parseURL(form.url).host + '</div>\n';
+        output += '    <div class="result-fields">\n';
+        $.each(form.fields, function(index, field) {
+          output += '      <span class="result-field">' + field.type + '</span>\n';
+        });
+        output += '    </div>\n';
+        output += '  </div>\n';
+        output += '</div>\n';
+        $("#selectedforms").append(output);
+    	} else {
+    		$('#selectedforms .result[formid="' + form.key + '"]').remove();
+    		$('#results .result[formid="' + form.key + '"] .result-checkbox').prop("checked", false);
+    	}
+    });
   });
   </script>
 </head>
 
 <body>
+  <div id="search-bar">
+    <div id="search-bar-inner">
+      <span id="search-input-span"><input type="text" id="search-input" /></span>
+    </div>      
+  </div>
+  <div id="forms">
+  
+  </div>
+  <div id="results">
+  
+  </div>
   <div id="body">
-    <div id="search-bar">
-      <div id="search-bar-inner">
-        <span id="search-input-span"><input type="text" id="search-input" /></span>
-      </div>      
-    </div>
-    <div id="forms">
+
+
+    <br clear="all" />
+    <div id="selectedforms">
     
-    </div>
-    <div id="results">
-    
-      
     </div>
     <br clear="all" />
     <div class="pageparser">
