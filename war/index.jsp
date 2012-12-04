@@ -95,7 +95,7 @@
     	  for (Form form : results)
     	  {
 	    	  out.println("<div class=\"form\" formid=\"" + KeyFactory.keyToString(form.getKey()) + "\">");
-	    	  out.println("  <div class=\"form-title\">" + form.getUrl() + " : " + form.getKey().getId() + "</div>");
+	    	  out.println("  <div class=\"form-title\">" + form.getUrl() + "</div>");
 	    	  out.println("  <div class=\"form-tags\">");
 	    	  for (Tag tag : form.getTags())
 	    	  {
@@ -126,8 +126,7 @@
           out.println("    <input type=\"checkbox\" />");
           out.println("  </div>");
           out.println("  <div class=\"result-item-container\">");
-          
-          out.println("    <div class=\"result-title\">" + form.getUrl() + " : " + form.getKey().getId() + "</div>");
+          out.println("    <div class=\"result-title\">" + form.getUrl() + "</div>");
           out.println("    <div class=\"result-fields\">");
           for (Field f : form.getFields())
           {

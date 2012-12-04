@@ -11,9 +11,11 @@
 }
 #forms {
 	height: 200px;
+	overflow: auto;
 }
 #results {
 	height: 200px;
+	overflow: auto;
 }
 #search-bar {
   background-color: red;
