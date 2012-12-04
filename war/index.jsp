@@ -60,55 +60,46 @@
 		  
 		  // make the forms div html content
 		  $.each(forms, function(index, form){
-			  output += '<div class="form" formid="' + form.key + '" \>\n';
-			  output += '  <div class="form-title">' + parseURL(form.url).host + '</div>\n';
-			  output += '  <div class="form-tags">';
+			  output += '<div class="form" formid="' + form.key + '" localid="' + index + '" tags="'; 
 			  $.each(form.tags, function(index, tag){
-				  output += '    <span class="form-tag"><span class="form-tag-value">' + tag.value + '</span>';
+          output += ' ' + tag.value + ' ';
+        });
+			  output += '" \>\n';
+		    output += '  <div class="form-check-container">\n';
+        output += '    <input type="checkbox" class="form-checkbox" />\n';
+        output += '  </div>';
+        output += '  <div class="form-item-container">\n'
+			  output += '    <div class="form-title">' + parseURL(form.url).host + '</div>\n';
+			  output += '    <div class="form-tags">\n';
+			  $.each(form.tags, function(index, tag){
+				  output += '      <span class="form-tag"><span class="form-tag-value">' + tag.value + '</span>';
 				  output += '<a class="form-tag-delete" href="#">x</a></span>\n';
 			  });
-			  output += '    <input type="text" class="add-tag-input" />\n';
-			  output += '    <a class="form-tag-add" href="#">Add</a>';
-			  output += '  </div>\n';
-        output += '  <div class="result-fields">\n';
+			  output += '      <input type="text" class="add-tag-input" />\n';
+			  output += '      <a class="form-tag-add" href="#">Add</a>\n';
+			  output += '    </div>\n';
+        output += '    <div class="form-fields">\n';
         $.each(form.fields, function(index, field) {
-          output += '    <span class="result-field">' + field.type + '</span>\n';
+        	var value = field.attributes[0] == null ? '' : ':' + field.attributes[0].value;
+          output += '      <span class="form-field">' + field.type + value + '</span>\n';
         });
+        output += '    </div>\n';
         output += '  </div>\n';
+        output += '  <br clear="both" />';
 			  output += '</div>\n';
 		  });
 	    $("#forms").html(output);
-	    
-		  // make the results div html content
-		  output = "";
-		  $.each(forms, function(index, form){
-			  output += '<div class="result" formid="' + form.key + '" localid="' + index + '" tags="';
-			  $.each(form.tags, function(index, tag){
-				  output += ' ' + tag.value + ' ';
-			  });
-			  output += '">\n';
-			  output += '  <div class="result-check-container">\n';
-			  output += '    <input type="checkbox" class="result-checkbox" />\n';
-			  output += '  </div>';
-			  output += '  <div class="result-item-container">\n';
-			  output += '    <div class="result-title">' + parseURL(form.url).host + '</div>\n';
-			  output += '    <div class="result-fields">\n';
-			  $.each(form.fields, function(index, field) {
-				  output += '      <span class="result-field">' + field.type + '</span>\n';
-			  });
-			  output += '    </div>\n';
-			  output += '  </div>\n';
-			  output += '</div>\n';
-			  $("#results").html(output);
-		  });
+	    $("#forms .form:even").css('background-color', '#ddd');
+	    $("#forms .form:odd").css('background-color', '#eee');
 	  });
   }
   
   $(document).ready(function(){
 	  // Get the list of forms from the database
-	  //$.getJSON("formretrieval", function(data) {
-		  repopulateForms();
-	  //});
+		repopulateForms();
+	  
+	  // Some position hacks
+	  
 	  
 	  // delete tag from form
 	  $(".form-tag-delete").live("click", function() {
@@ -118,9 +109,9 @@
       $.post("modifytags", { formkey: formkey, action: "delete", tag: tag}, function(data){
         $(deletebutton).parent().hide();
         $("#parseresults").html(data);
-        var tags = $('.result[formid="' + formkey + '"]').attr("tags");
+        var tags = $('.form[formid="' + formkey + '"]').attr("tags");
         tags = tags.replace(" " + tag + " ", " ");
-        $('.result[formid="' + formkey + '"]').attr("tags", tags);
+        $('.form[formid="' + formkey + '"]').attr("tags", tags);
       });
     });
     
@@ -131,25 +122,26 @@
       var deletebutton = this;
       
     	$.post("modifytags", { formkey: formkey, action: "add", tag: tagname}, function(data){
-    		$(deletebutton).parent().prepend('<span class="form-tag">' + tagname + '<a class="form-tag-delete" href="#">X</a></span>');
+    		$(deletebutton).parent().prepend('<span class="form-tag">' + tagname + '<a class="form-tag-delete" href="#">x</a></span>');
     		$("#parseresults").html(data);
-    		var tags = $('.result[formid="' + formkey + '"]').attr("tags");
-    		$('.result[formid="' + formkey + '"]').attr("tags", " " + tags + " " + tagname);
+    		var tags = $('.form[formid="' + formkey + '"]').attr("tags");
+    		$('.form[formid="' + formkey + '"]').attr("tags", " " + tags + " " + tagname);
     	});
     });
     
     // search button key up
     $("#search-input").keyup(function() {
     	if ($(this).val() == "") {
-    		$("#results").hide();
-    		$("#forms").show();
+    		$("#forms .form").show();
+ 	      $("#forms .form:even").css('background-color', '#ddd');
+ 	      $("#forms .form:odd").css('background-color', '#eee');
     	}
     	else {
     		var tag = $(this).val();
-    		$('#results .result').hide();
-    		$('#results .result[tags~="' + tag + '"]').show();
-    		$("#results").show();
-    		$("#forms").hide();
+    		$('#forms .form').hide();
+    		$('#forms .form[tags~="' + tag + '"]').show();
+ 	      $('#forms .form[tags~="' + tag + '"]:even').css('background-color', '#ddd');
+ 	      $('#forms .form[tags~="' + tag + '"]:odd').css('background-color', '#eee');
     	}
     });
     
@@ -165,31 +157,40 @@
     });
     
     // checkbox - adding to checked form list
-    $(".result-checkbox").live("change", function() {
-    	var localid = $(this).closest(".result").attr("localid");
+    $(".form-checkbox").live("change", function() {
+    	var localid = $(this).closest(".form").attr("localid");
     	var form = currentforms[localid];
     	
     	if ($(this).is(":checked") == true) {
         $('#selectedforms .result[formid="' + form.key + '"]').remove();
        	var output = "";
        	output += '<div class="result" formid="' + form.key + '" localid="' + localid + '">\n';
-        output += '  <div class="result-check-container">\n';
-        output += '    <input type="checkbox" class="result-checkbox" checked />\n';
-        output += '  </div>';
-        output += '  <div class="result-item-container">\n';
-        output += '    <div class="result-title">' + parseURL(form.url).host + '</div>\n';
-        output += '    <div class="result-fields">\n';
+        output += '  <div class="result-title">' + parseURL(form.url).host + '</div>\n';
+        output += '  <div class="result-fields">\n';
         $.each(form.fields, function(index, field) {
-          output += '      <span class="result-field">' + field.type + '</span>\n';
+          output += '    <span class="result-field">' + field.type + '</span>\n';
         });
-        output += '    </div>\n';
         output += '  </div>\n';
         output += '</div>\n';
         $("#selectedforms").append(output);
+        $(".result:even").css('background-color', '#ddd');
+        $(".result:odd").css('background-color', '#eee');
     	} else {
     		$('#selectedforms .result[formid="' + form.key + '"]').remove();
-    		$('#results .result[formid="' + form.key + '"] .result-checkbox').prop("checked", false);
+    		$(".result:even").css('background-color', '#ddd');
+        $(".result:odd").css('background-color', '#eee');
     	}
+    });
+    
+    // Query command
+    $("#submitforms").click(function () {
+    	alert("Query not yet implemented");
+    });
+    
+    // Clear forms command
+    $("#clearforms").click(function() {
+    	$("#selectedforms").html("");
+    	$(".form-checkbox").removeAttr("checked");
     });
   });
   </script>
@@ -201,31 +202,28 @@
       <span id="search-input-span"><input type="text" id="search-input" /></span>
     </div>      
   </div>
-  <div id="forms">
-  
-  </div>
-  <div id="results">
-  
-  </div>
   <div id="body">
-
-
-    <br clear="all" />
-    <div id="selectedforms">
-    
+	  <div id="forms"></div>
+	  <div id="selectedformactions">
+      <a href="#" id="submitforms">Query</a>
+      <a href="#" id="clearforms">Clear</a>
     </div>
+	  <div id="selectedforms"></div>
     <br clear="all" />
-    <div class="pageparser">
+    <div id="pageparser">
       <h2>Parse a web page</h2>
       <table>
         <tr>
-          <td></td>
+          <td>URL:</td>
           <td><input type="text" name="page" id="parsepageinput"/></td>
           <td><a id="parse-button" href="#">Parse</a></td>
         </tr>
       </table>
+      <br />
+      <h2>Server response</h2>
       <div id="parseresults"></div>
     </div>
   </div>
+  <div id="footer"></div>
 </body>
 </html>
