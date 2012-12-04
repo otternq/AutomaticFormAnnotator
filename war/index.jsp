@@ -18,7 +18,92 @@
   <link rel="stylesheet" type="text/css" href="css/main.css">
   <script src="scripts/jquery-1.8.3.js"></script>
   <script>
+  var currentforms;
+  
+	//This function creates a new anchor element and uses location
+	//properties (inherent) to get the desired URL data. Some String
+	//operations are used (to normalize results across browsers).
+	//http://james.padolsey.com/javascript/parsing-urls-with-the-dom/
+	
+	function parseURL(url) {
+	   var a =  document.createElement('a');
+	   a.href = url;
+	   return {
+	       source: url,
+	       protocol: a.protocol.replace(':',''),
+	       host: a.hostname,
+	       port: a.port,
+	       query: a.search,
+	       params: (function(){
+	           var ret = {},
+	               seg = a.search.replace(/^\?/,'').split('&'),
+	               len = seg.length, i = 0, s;
+	           for (;i<len;i++) {
+	               if (!seg[i]) { continue; }
+	               s = seg[i].split('=');
+	               ret[s[0]] = s[1];
+	           }
+	           return ret;
+	       })(),
+	       file: (a.pathname.match(/\/([^\/?#]+)$/i) || [,''])[1],
+	       hash: a.hash.replace('#',''),
+	       path: a.pathname.replace(/^([^\/])/,'/$1'),
+	       relative: (a.href.match(/tps?:\/\/[^\/]+(.+)/) || [,''])[1],
+	       segments: a.pathname.replace(/^\//,'').split('/')
+	   };
+	}
+  
+  function repopulateForms() {
+	  $.getJSON("formretrieval", function(forms) {
+		  var output = "";
+		  currentforms = forms;
+		  
+		  // make the forms div html content
+		  $.each(forms, function(index, form){
+			  output += '<div class="form" formid="' + form.key + '" \>\n';
+			  output += '  <div class="form-title">' + parseURL(form.url).host + '</div>\n';
+			  output += '  <div class="form-tags">';
+			  $.each(form.tags, function(index, tag){
+				  output += '    <span class="form-tag"><span class="form-tag-value">' + tag.value + '</span>';
+				  output += '<a class="form-tag-delete" href="#">X</a></span>\n';
+			  });
+			  output += '    <input type="text" class="add-tag-input" />\n';
+			  output += '    <a class="form-tag-add" href="#">Add</a>';
+			  output += '  </div>\n';
+			  output += '</div>\n';
+		  });
+	    $("#forms").html(output);
+	    
+		  // make the results div html content
+		  output = "";
+		  $.each(forms, function(index, form){
+			  output += '<div class="result" formid="' + form.key + '" tags="';
+			  $.each(form.tags, function(index, tag){
+				  output += ' ' + tag.value + ' ';
+			  });
+			  output += '">\n';
+			  output += '  <div class="result-check-container">\n';
+			  output += '    <input type="checkbox" />\n';
+			  output += '  </div>';
+			  output += '  <div class="result-item-container">\n';
+			  output += '    <div class="result-title">' + parseURL(form.url).host + '</div>\n';
+			  output += '    <div class="result-fields">\n';
+			  $.each(form.fields, function(index, field) {
+				  output += '      <span class="result-field">' + field.type + '</span>\n';
+			  });
+			  output += '    </div>\n';
+			  output += '  </div>\n';
+			  output += '</div>\n';
+			  $("#results").html(output);
+		  });
+	  });
+  }
+  
   $(document).ready(function(){
+	  // Get the list of forms from the database
+	  //$.getJSON("formretrieval", function(data) {
+		  repopulateForms();
+	  //});
 	  
 	  // delete tag from form
 	  $(".form-tag-delete").live("click", function() {
@@ -35,7 +120,7 @@
     });
     
     // add tag to form
-    $(".form-tag-add").click(function(){
+    $(".form-tag-add").live("click", function(){
     	var tagname = $(this).siblings(".add-tag-input").val(); 
     	var formkey = $(this).closest('.form').attr("formid");
       var deletebutton = this;
@@ -70,6 +155,7 @@
     	alert(url);
     	$.get("pageparser", { page: url}, function(data) {
     		$("#parseresults").html(data);
+    		repopulateForms();
     	});
     });
   });
@@ -84,66 +170,11 @@
       </div>      
     </div>
     <div id="forms">
-    <% 
-    PersistenceManager pm = PMF.get().getPersistenceManager();
-    Query q = pm.newQuery("select from automaticformannotator.form.Form");
-
-    List<Form> results;
-    try {
-      results = (List<Form>) q.execute();
-      if (!results.isEmpty()) {
-    	  for (Form form : results)
-    	  {
-	    	  out.println("<div class=\"form\" formid=\"" + KeyFactory.keyToString(form.getKey()) + "\">");
-	    	  out.println("  <div class=\"form-title\">" + form.getUrl() + "</div>");
-	    	  out.println("  <div class=\"form-tags\">");
-	    	  for (Tag tag : form.getTags())
-	    	  {
-	    		  out.println("    <span class=\"form-tag\"><span class=\"form-tag-value\">" + tag.getValue() + "</span><a class=\"form-tag-delete\" href=\"#\">X</a></span>");
-	    	  }
-	    	  out.println("    <input type=\"text\" class=\"add-tag-input\" />");
-	    	  out.println("    <a class=\"form-tag-add\" href=\"#\">Add</a>");
-	    	  out.println("  </div>");
-	    	  out.println("</div>");
-    	  }
-      } else {
-    	  out.println("<p>No forms parsed yet.</p>");
-      }
-    %>
+    
     </div>
     <div id="results">
-    <%
-      if (!results.isEmpty()) {
-        for (Form form : results)
-        {
-          out.print("<div class=\"result\" formid=\"" + KeyFactory.keyToString(form.getKey()) + "\" tags=\"" );
-          for (Tag t : form.getTags())
-          {
-        	  out.print(" " + t.getValue() + " ");
-          }
-          out.println("\" />");
-          out.println("  <div class=\"result-check-container\">");
-          out.println("    <input type=\"checkbox\" />");
-          out.println("  </div>");
-          out.println("  <div class=\"result-item-container\">");
-          out.println("    <div class=\"result-title\">" + form.getUrl() + "</div>");
-          out.println("    <div class=\"result-fields\">");
-          for (Field f : form.getFields())
-          {
-            out.println("      <span class=\"result-field\">" + f.getType() + "</span>");
-          }
-          out.println("    </div>");
-          out.println("  </div>");
-          out.println("</div>");
-        }
-      } else {
-        
-      }
-    } finally {
-      pm.close();
-    }
-    %>
-      <div class="result"><a id="build-query">Build query</a></div>
+    
+      
     </div>
     <br clear="all" />
     <div class="pageparser">
