@@ -1,0 +1,64 @@
+@CHARSET "ISO-8859-1";
+
+* {
+  margin: 0;
+  padding: 0; 
+}
+#body {
+  width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+#forms {
+	height: 200px;
+}
+#results {
+	height: 200px;
+}
+#search-bar {
+  background-color: red;
+}
+#search-input {
+  width: 100%;
+}
+#search-bar-inner {
+  display: table;
+  width: 100%;
+  padding: 10px;
+}
+#search-input-span {
+  display: table-cell;
+  width: 100%;
+}
+.form-tag {
+  background-color: green;
+  margin-right: 5px;
+}
+.form-tag-delete {
+  background-color: red;
+}
+.add-tag-input {
+  width: 100px;  
+}
+.result-field {
+  border: 1px solid black;
+  margin-right: 3px;
+}
+#results{
+	display: none;
+}
+.result-check-container {
+  float: left;
+  margin-right: 10px;
+  padding-top: 1px;
+}
+.result-item-container {
+  float: left;
+}
+.result {
+  clear: both;
+}
+.results {
+  clear: both;
+}
+    

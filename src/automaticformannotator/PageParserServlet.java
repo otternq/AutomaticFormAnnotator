@@ -18,6 +18,7 @@ import automaticformannotator.data.PMF;
 import automaticformannotator.form.Attribute;
 import automaticformannotator.form.Field;
 import automaticformannotator.form.Form;
+import automaticformannotator.util.Tag;
 
 /**
  * This servlet processes a web page passed as a parameter to it. It looks
@@ -85,6 +86,13 @@ public class PageParserServlet extends HttpServlet {
 					form.addFields(inputField);
 				}
 				
+				Tag urlTag = new Tag();
+				urlTag.setValue(page);
+				form.addTag(urlTag);
+				Tag testTag = new Tag();
+				testTag.setValue("testtag");
+				form.addTag(urlTag);
+				
 				forms.add(form);
 			}
 			
@@ -106,12 +114,13 @@ public class PageParserServlet extends HttpServlet {
 	        }
 		}
 		catch (IOException e) {
-			log.warning("Could not connect to " + page);
+			//log.warning("Could not connect to " + page);
+			resp.getWriter().println("Could not connect to " + page);
 		}
 		catch (IllegalArgumentException e)  {
-			log.warning("JSoup could not parse the string '" + page + "'");
+			resp.getWriter().println("JSoup could not parse the string '" + page + "'");
 		}
-		
+		/*
 		String destination = "/";
 		 
 		RequestDispatcher rd = getServletContext().getRequestDispatcher(destination);
@@ -120,5 +129,6 @@ public class PageParserServlet extends HttpServlet {
 		} catch (ServletException e) {
 			log.warning("Could not forward. " + e.getMessage());
 		}
+		*/
 	}
 }
