@@ -25,6 +25,8 @@ import javax.jdo.JDOUnsupportedOptionException;
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 
+import com.google.appengine.api.datastore.Text;
+
 import automaticformannotator.data.PMF;
 import automaticformannotator.form.AttributeHelper;
 import automaticformannotator.form.Form;
@@ -97,6 +99,7 @@ public class FillFormServlet extends HttpServlet {
 						String requestBody = FillFormServlet.implodeArray(params.toArray(temp), "&");
 						resp.getWriter().println(p.getUrl() + action);
 						HttpURLConnection con = (HttpURLConnection) new URL(p.getUrl() + action).openConnection();
+						con.setDoOutput(true);
 						con.setRequestMethod(method);
 						
 						DataOutputStream wr = new DataOutputStream(con.getOutputStream ());
