@@ -9,6 +9,7 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
 import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.Text;
 
 @PersistenceCapable
 public class Response {
@@ -24,7 +25,7 @@ public class Response {
 	
 	private Date date;
 	
-	private String response;
+	private Text response;
 	
 	private List<String> keywords;
 	
@@ -50,14 +51,14 @@ public class Response {
 	 * @return the response
 	 */
 	public String getResponse() {
-		return response;
+		return response.toString();
 	}
 
 	/**
 	 * @param response the response to set
 	 */
 	public void setResponse(String response) {
-		this.response = response;
+		this.response = new Text(response);
 	}
 
 	/**
