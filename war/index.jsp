@@ -24,7 +24,6 @@
 	//properties (inherent) to get the desired URL data. Some String
 	//operations are used (to normalize results across browsers).
 	//http://james.padolsey.com/javascript/parsing-urls-with-the-dom/
-	
 	function parseURL(url) {
 	   var a =  document.createElement('a');
 	   a.href = url;
@@ -54,6 +53,7 @@
 	}
   
   function repopulateForms() {
+	  $("#forms").html('<p>Loading forms...</p>');
 	  $.getJSON("formretrieval", function(forms) {
 		  var output = "";
 		  currentforms = forms;
@@ -80,14 +80,19 @@
 			  output += '    </div>\n';
         output += '    <div class="form-fields">\n';
         $.each(form.fields, function(index, field) {
-        	var value = field.attributes[0] == null ? '' : ':' + field.attributes[0].value;
-          output += '      <span class="form-field">' + field.type + value + '</span>\n';
+        	var value = field.attributes[0] == null ? '(no name)' : field.attributes[0].value;
+          output += '      <span class="form-field">' + value + '</span>\n';
         });
         output += '    </div>\n';
         output += '  </div>\n';
         output += '  <br clear="both" />';
 			  output += '</div>\n';
 		  });
+		  
+		  if (output == "") {
+			  output += '<p>No forms in the database</p>';
+		  }
+		  
 	    $("#forms").html(output);
 	    $("#forms .form:even").css('background-color', '#ddd');
 	    $("#forms .form:odd").css('background-color', '#eee');
@@ -97,9 +102,6 @@
   $(document).ready(function(){
 	  // Get the list of forms from the database
 		repopulateForms();
-	  
-	  // Some position hacks
-	  
 	  
 	  // delete tag from form
 	  $(".form-tag-delete").live("click", function() {
@@ -113,6 +115,8 @@
         tags = tags.replace(" " + tag + " ", " ");
         $('.form[formid="' + formkey + '"]').attr("tags", tags);
       });
+      
+      return false;
     });
     
     // add tag to form
@@ -123,10 +127,12 @@
       
     	$.post("modifytags", { formkey: formkey, action: "add", tag: tagname}, function(data){
     		$(deletebutton).parent().prepend('<span class="form-tag">' + tagname + '<a class="form-tag-delete" href="#">x</a></span>');
+    		//alert(tagname);
     		$("#parseresults").html(data);
     		var tags = $('.form[formid="' + formkey + '"]').attr("tags");
     		$('.form[formid="' + formkey + '"]').attr("tags", " " + tags + " " + tagname);
     	});
+    	return false;
     });
     
     // search button key up
@@ -154,6 +160,7 @@
     		$("#parseresults").html(data);
     		repopulateForms();
     	});
+    	return false;
     });
     
     // checkbox - adding to checked form list
@@ -168,9 +175,13 @@
         output += '  <div class="result-title">' + parseURL(form.url).host + '</div>\n';
         output += '  <div class="result-fields">\n';
         $.each(form.fields, function(index, field) {
-          output += '    <span class="result-field">' + field.type + '</span>\n';
+        	var name = field.attributes[0].value;
+          output += '    <div class="result-field"><div class="result-field-name">' + name + '</div>\n';
+          output += '    <div class="result-field-input">\n';
+          output += '    <input type="' + field.type + '" />\n';
+          output += '    </div></div>\n';
         });
-        output += '  </div>\n';
+        output += '  </div><br clear="both" />\n';
         output += '</div>\n';
         $("#selectedforms").append(output);
         $(".result:even").css('background-color', '#ddd');
@@ -184,13 +195,29 @@
     
     // Query command
     $("#submitforms").click(function () {
-    	alert("Query not yet implemented");
+    	var forms = [];
+    	$('.result').each(function() {
+    		var formkey = $(this).attr('formid');
+    		var inputs = [];
+    		$('.result-field').each(function() {
+    			var name = $(this).children('.result-field-name').text();
+    			var value = $(this).find('input').val();
+    			inputs.push({name: name, value: value});
+    		});
+    		forms.push({id: formkey, fields: inputs});
+    	});
+    	$("#parseresults").html("Querying forms...");
+    	$.post('fillforms', {input: JSON.stringify(forms)}, function(data) {
+    		$("#parseresults").html(data);
+    	})
+    	return false;
     });
     
     // Clear forms command
     $("#clearforms").click(function() {
     	$("#selectedforms").html("");
     	$(".form-checkbox").removeAttr("checked");
+    	return false;
     });
   });
   </script>
@@ -208,7 +235,9 @@
       <a href="#" id="submitforms">Query</a>
       <a href="#" id="clearforms">Clear</a>
     </div>
-	  <div id="selectedforms"></div>
+    <div id="selectedforms-container">
+	    <div id="selectedforms"></div>
+	  </div>
     <br clear="all" />
     <div id="pageparser">
       <h2>Parse a web page</h2>

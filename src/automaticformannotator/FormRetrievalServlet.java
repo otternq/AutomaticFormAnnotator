@@ -37,7 +37,15 @@ public class FormRetrievalServlet extends HttpServlet {
 	    try {
 	      results = (List<Form>) q.execute();
 	      // Call the retrieve all to pull in the field values for use
+	      //pm.refreshAll(results);
 	      pm.retrieveAll(results);
+	      for (Form form : results) {
+	    	  //pm.refreshAll(form.getFields());
+	    	  //pm.refreshAll(form.getTags());
+	    	  pm.retrieveAll(form.getFields());
+	      }
+	      //pm.retrieveAll(results.get(0).getFields());
+	      //results.get(0).getFields().get(0).getAttributes().get(0).getName();
 	      // Write the json string
 	      Gson gson = new GsonBuilder()
 	              .registerTypeAdapter(Key.class,  new KeySerializer())
