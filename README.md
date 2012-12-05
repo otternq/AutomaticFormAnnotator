@@ -47,6 +47,9 @@ jSoup is a library that allows HTML parsing based on CSS style selection. It can
 We chose JDO as our storage mechanism so that we were not restricted to the Google App Engine DataStore storage engine.
 Using JDO allows the system to write its class structure without thought of storage engine.
 
+####GSON####
+Google's JSON library. Can be found [here](http://code.google.com/p/google-gson/downloads/detail?name=google-gson-2.2.2-release.zip&can=2&q=)
+
 References
 ------
 - [Google App Engine - JDO Documentation](https://developers.google.com/appengine/docs/java/datastore/jdo/creatinggettinganddeletingdata)
