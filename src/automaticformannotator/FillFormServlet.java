@@ -26,6 +26,7 @@ import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 
 import com.google.appengine.api.datastore.Text;
+import com.google.gson.Gson;
 
 import automaticformannotator.data.PMF;
 import automaticformannotator.form.AttributeHelper;
@@ -39,103 +40,23 @@ import automaticformannotator.form.Form;
 public class FillFormServlet extends HttpServlet {
 	private static final Logger log = Logger.getLogger(PageParserServlet.class.getName());
 
-	public void doGet(HttpServletRequest req, HttpServletResponse resp)
+	public void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		
-		PersistenceManager pm = PMF.get().getPersistenceManager();
+		Gson gson = new Gson();
 		
-		Query q = pm.newQuery(Form.class);
+		String formDataJsonString = req.getParameter("input");
+		Request formData = gson.fromJson(formDataJsonString, Request.class);
 		
 		try {
 			
-			List<Form> results = (List<Form>) q.execute();
+			String url = formData.url + formData.action;
 			
-			if (!results.isEmpty()) {
-				
-				resp.getWriter().println("There are results");
-				
-				for (Form p : results) {// Process result p
-					log.info("Starting Form");
-					
-					try {
-						//get the form attributes so that they can be searched
-						List<Attribute> formAttributes = p.getAttributes();
-						
-						//save the action and method attributes
-						String action = AttributeHelper.getAttributeByName("action", formAttributes).getValue();
-						String method = AttributeHelper.getAttributeByName("method", formAttributes).getValue();
-						
-						//a list of parameters to be submitted
-						List<String> params = new ArrayList<String>();
-						
-						//add the default values for all form fields
-						for ( Field f : p.getFields() ) {
-							log.info("handling fields");
-							
-							//get the fields attributes so that they can be searched
-							List<Attribute> fieldAttributes = f.getAttributes();
-							
-							String fieldName = "";
-							String fieldValue = "";
-							
-							try {
-								//get the field name and default value
-								fieldName = AttributeHelper.getAttributeByName("name", fieldAttributes).getValue();
-								fieldValue = AttributeHelper.getAttributeByName("value", fieldAttributes).getValue();
-								
-								//add these to the parameters list
-								params.add(fieldName + "=" + URLEncoder.encode(fieldValue, "UTF-8"));
-							} catch (Exception ae) {
-								if (ae.getMessage().compareTo("AttributeNotFound") == 0) {
-									log.info("could not find attribute");
-								}
-							}
-							
-							
-						}
-						
-						String temp[] = new String[8];
-						
-						String requestBody = FillFormServlet.implodeArray(params.toArray(temp), "&");
-						resp.getWriter().println(p.getUrl() + action);
-						HttpURLConnection con = (HttpURLConnection) new URL(p.getUrl() + action).openConnection();
-						con.setDoOutput(true);
-						con.setRequestMethod(method);
-						
-						DataOutputStream wr = new DataOutputStream(con.getOutputStream ());
-						//specify the parameter
-						wr.writeBytes(requestBody);
-						wr.flush();
-						wr.close();
-						
-						//retrieve the response
-						InputStream response = con.getInputStream();
-						
-						
-						//prepare response for storage in datastore
-						String resString = this.slurp(response);
-						
-						
-						Response res = new Response();
-						res.setResponse(resString);
-						res.setFormKey(p.getKey());
-						
-						//store the response
-						pm.makePersistent(res);
-						
-						con.disconnect();
-						resp.getWriter().println("Storage of results in database successful");
-						
-					} catch (Exception e) {//an attribute is not specified
-						resp.getWriter().println("There was an exception "+ e.getMessage() + " ");
-						e.printStackTrace();
-					}
-					
-				}
-				
-			} else {// Handle "no results" case
-				
-			}
+			resp.getOutputStream().print(
+					gson.toJson(
+							FillFormServlet.getResponse(url, formData.method, formData.params)
+					)
+			);
 			
 		} catch (JDOUnsupportedOptionException e) {
 			System.out.print("JDO is not supported");
@@ -145,6 +66,42 @@ public class FillFormServlet extends HttpServlet {
 		}
 		
 	}//END function doGet
+	
+	/**
+	 * Takes a URL, Method, and Paramaters(as a string) and sends an HTTP request to a remote server
+	 * @return the HTML content from the remote server
+	 * @throws IOException 
+	 */
+	public static Response getResponse(String url, String method, String params) throws IOException {
+		
+		HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
+		con.setDoOutput(true);
+		con.setRequestMethod(method);
+		
+		DataOutputStream wr = new DataOutputStream(con.getOutputStream ());
+		//specify the parameter
+		wr.writeBytes(params);
+		wr.flush();
+		wr.close();
+		
+		//retrieve the response
+		InputStream response = con.getInputStream();
+		
+		
+		//prepare response for storage in datastore
+		String resString = FillFormServlet.slurp(response);
+		
+		//PersistenceManager pm = PMF.get().getPersistenceManager();
+		
+		Response res = new Response();
+		res.setResponse(resString);
+		
+		//pm.makePersistent(res);
+		
+		con.disconnect();
+		
+		return res;
+	}
 	
 	/**
 	* Method to join array elements of type string
