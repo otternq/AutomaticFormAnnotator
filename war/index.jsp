@@ -216,8 +216,8 @@
     		
     		$("#parseresults").html("Querying a form " + url + "...");
 	      $.post('fillforms', {input: JSON.stringify(form)}, function(data) {
-	    	  if (data.status == "true") {
-	    		  $("#parseresults").html(data.response.value);
+	    	  if (data.response != undefined) {
+	    		  $("#serverResponse").text(data.response.value);
 	    	  } else {
 	    		  $("#parseresults").html(data.message);
 	    	  }
@@ -269,6 +269,7 @@
       <br />
       <h2>Server response</h2>
       <div id="parseresults"></div>
+      <textarea id="serverResponse"></textarea>
     </div>
   </div>
   <div id="footer"></div>

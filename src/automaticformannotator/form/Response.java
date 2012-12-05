@@ -25,6 +25,9 @@ public class Response {
 	
 	private Date date;
 	
+	private Text params;
+	
+
 	private Text response;
 	
 	private List<String> keywords;
@@ -76,6 +79,20 @@ public class Response {
 	 */
 	public void addKeyword(String keywords) {
 		this.keywords.add(keywords);
+	}
+	
+	/**
+	 * @return the params
+	 */
+	public Text getParams() {
+		return params;
+	}
+
+	/**
+	 * @param params the params to set
+	 */
+	public void setParams(String params) {
+		this.params = new Text(params);
 	}
 	
 }

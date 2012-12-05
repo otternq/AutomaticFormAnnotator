@@ -54,7 +54,14 @@ public class FillFormServlet extends HttpServlet {
 		
 		try {
 			
-			String url = formData.url + formData.action;
+			
+			String url = "";
+			
+			if (formData.action.contains("http")) {
+				url = formData.action;
+			} else {
+				url = formData.url + formData.action;
+			}
 			
 			resp.getWriter().print(
 					gson.toJson(
@@ -103,6 +110,7 @@ public class FillFormServlet extends HttpServlet {
 		Response res = new Response();
 		res.setResponse(resString);
 		res.setFormKey(formKey);
+		res.setParams(params);
 		
 		pm.makePersistent(res);
 		
