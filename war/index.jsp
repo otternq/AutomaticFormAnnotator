@@ -199,13 +199,18 @@
     	$('.result').each(function() {
     		var formkey = $(this).attr('formid');
     		var inputs = [];
+    		var localid = $(this).attr('localid');
+    		var action = currentforms[localid].attributes[1].value;
+    		var method = currentforms[localid].attributes[2].value;
+    		var url = currentforms[localid].url;
     		$('.result-field').each(function() {
     			var name = $(this).children('.result-field-name').text();
     			var value = $(this).find('input').val();
     			inputs.push({name: name, value: value});
     		});
-    		forms.push({id: formkey, fields: inputs});
+    		forms.push({method: method, action: action, url: url, fields: inputs});
     	});
+    	
     	$("#parseresults").html("Querying forms...");
     	$.post('fillforms', {input: JSON.stringify(forms)}, function(data) {
     		$("#parseresults").html(data);
