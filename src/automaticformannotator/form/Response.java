@@ -29,8 +29,11 @@ public class Response {
 	
 	private List<String> keywords;
 	
+	public Boolean Status;
+	
 	public Response() {
 		this.date = new Date();
+		this.Status = true;
 	}
 
 	/**

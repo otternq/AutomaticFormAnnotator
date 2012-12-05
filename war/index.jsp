@@ -208,16 +208,26 @@
     			var name = $(this).children('.result-field-name').text();
     			var value = $(this).find('input').val();
     			inputs.push({name: name, value: value});
+    			
     			params += name + '=' + value + '&';
     		});
-    		forms.push({method: method, action: action, url: url, fields: params});
+    		var form = {method: method, action: action, url: url, params: params, formkey: formkey};
+    	  alert(JSON.stringify(form));
+    		
+    		$("#parseresults").html("Querying a form " + url + "...");
+	      $.post('fillforms', {input: JSON.stringify(form)}, function(data) {
+	    	  if (data.status == "true") {
+	    		  $("#parseresults").html(data.response.value);
+	    	  } else {
+	    		  $("#parseresults").html(data.message);
+	    	  }
+	        
+	        //alert(data.response.value);
+	      }, "json");
     	});
-    	alert(JSON.stringify(forms));
     	
-    	$("#parseresults").html("Querying forms...");
-    	$.post('fillforms', {input: JSON.stringify(forms)}, function(data) {
-    		$("#parseresults").html(data);
-    	})
+    	//forms.push({method: method, action: action, url: url, fields: params});
+
     	return false;
     });
     

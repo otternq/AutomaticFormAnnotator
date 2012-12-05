@@ -10,6 +10,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.ProtocolException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLEncoder;
 
@@ -25,6 +27,8 @@ import javax.jdo.JDOUnsupportedOptionException;
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Text;
 import com.google.gson.Gson;
 
@@ -52,15 +56,18 @@ public class FillFormServlet extends HttpServlet {
 			
 			String url = formData.url + formData.action;
 			
-			resp.getOutputStream().print(
+			resp.getWriter().print(
 					gson.toJson(
-							FillFormServlet.getResponse(url, formData.method, formData.params)
+							FillFormServlet.getResponse(url, formData.method, formData.params, KeyFactory.stringToKey(formData.formkey))
 					)
 			);
 			
 		} catch (JDOUnsupportedOptionException e) {
 			System.out.print("JDO is not supported");
-			
+		} catch (SocketTimeoutException e) {
+			resp.getWriter().println("{'status': 'false', 'message': '"+e.getMessage()+"'}");
+		} catch (ProtocolException e) {
+			resp.getWriter().println("{'status': 'false', 'message': '"+e.getMessage()+"'}");
 		} finally {
 			//q.cancelAll();
 		}
@@ -72,7 +79,7 @@ public class FillFormServlet extends HttpServlet {
 	 * @return the HTML content from the remote server
 	 * @throws IOException 
 	 */
-	public static Response getResponse(String url, String method, String params) throws IOException {
+	public static Response getResponse(String url, String method, String params, Key formKey) throws IOException {
 		
 		HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
 		con.setDoOutput(true);
@@ -91,12 +98,13 @@ public class FillFormServlet extends HttpServlet {
 		//prepare response for storage in datastore
 		String resString = FillFormServlet.slurp(response);
 		
-		//PersistenceManager pm = PMF.get().getPersistenceManager();
+		PersistenceManager pm = PMF.get().getPersistenceManager();
 		
 		Response res = new Response();
 		res.setResponse(resString);
+		res.setFormKey(formKey);
 		
-		//pm.makePersistent(res);
+		pm.makePersistent(res);
 		
 		con.disconnect();
 		
