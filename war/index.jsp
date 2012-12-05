@@ -155,7 +155,7 @@
     $("#parse-button").click(function() {
     	// Submit a form to the page parser
     	var url = $("#parsepageinput").val();
-    	alert(url);
+    	$("#parseresults").html("Parsing web page...");
     	$.get("pageparser", { page: url}, function(data) {
     		$("#parseresults").html(data);
     		repopulateForms();
@@ -203,13 +203,16 @@
     		var action = currentforms[localid].attributes[1].value;
     		var method = currentforms[localid].attributes[2].value;
     		var url = currentforms[localid].url;
+    		var params = "";
     		$('.result-field').each(function() {
     			var name = $(this).children('.result-field-name').text();
     			var value = $(this).find('input').val();
     			inputs.push({name: name, value: value});
+    			params += name + '=' + value + '&';
     		});
-    		forms.push({method: method, action: action, url: url, fields: inputs});
+    		forms.push({method: method, action: action, url: url, fields: params});
     	});
+    	alert(JSON.stringify(forms));
     	
     	$("#parseresults").html("Querying forms...");
     	$.post('fillforms', {input: JSON.stringify(forms)}, function(data) {
