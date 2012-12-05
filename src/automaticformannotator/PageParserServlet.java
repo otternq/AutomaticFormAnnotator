@@ -89,15 +89,13 @@ public class PageParserServlet extends HttpServlet {
 				Tag urlTag = new Tag();
 				urlTag.setValue(page);
 				form.addTag(urlTag);
-				Tag testTag = new Tag();
-				testTag.setValue("testtag");
-				form.addTag(urlTag);
 				
 				forms.add(form);
 			}
 			
 			// At this point 'form' can be saved to disk.
-			log.info("Successfully parsed the form. Now saving to datastore.");
+			//log.info("Successfully parsed the form. Now saving to datastore.");
+			resp.getWriter().println(forms.size() + " forms found and parsed");
 			// Get the persistence manager from the static persistence manager factory
 			PersistenceManager pm = PMF.get().getPersistenceManager();
 

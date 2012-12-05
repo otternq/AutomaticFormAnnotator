@@ -124,6 +124,7 @@ public class FillFormServlet extends HttpServlet {
 						pm.makePersistent(res);
 						
 						con.disconnect();
+						resp.getWriter().println("Storage of results in database successful");
 						
 					} catch (Exception e) {//an attribute is not specified
 						resp.getWriter().println("There was an exception "+ e.getMessage() + " ");

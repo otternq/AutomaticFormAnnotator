@@ -41,4 +41,13 @@
 	    <servlet-name>FillForm</servlet-name>
 	    <url-pattern>/fillforms</url-pattern>
 	</servlet-mapping>
+	
+  <servlet>
+      <servlet-name>FormRetrieval</servlet-name>
+      <servlet-class>automaticformannotator.FormRetrievalServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+      <servlet-name>FormRetrieval</servlet-name>
+      <url-pattern>/formretrieval</url-pattern>
+  </servlet-mapping>
 </web-app>

@@ -20,9 +20,13 @@ Form Discovery
 ---
 A set of classes and scripts that will find and evaludate forms to store the information required to submit the form automatically
 
+###Tagging Forms###
+Allow a user to provide context to the system, classifying the type of data this form will allow access to
+
 Form Submission
 ----
-Uses stored information about forms to allow keyword searches on resulting pages
+Uses stored information about forms to allow users to submit values for each form element and then stores and displays
+ the resulting HTML content for immediate viewing and later analysis.
 
 Requirements
 ----

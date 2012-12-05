@@ -49,7 +49,7 @@ public class Form {
 	 * @param tags the tags to set
 	 */
 	public void addTag(Tag tag) {
-		this.tags.add(tag);;
+		this.tags.add(tag);
 	}
 
 	/**
@@ -65,6 +65,7 @@ public class Form {
 	public Form() {
 		this.fields = new ArrayList<Field>();
 		this.attributes = new ArrayList<Attribute>();
+		this.tags = new ArrayList<Tag>();
 	}
 	
 	/**

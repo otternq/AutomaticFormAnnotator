@@ -18,7 +18,90 @@
   <link rel="stylesheet" type="text/css" href="css/main.css">
   <script src="scripts/jquery-1.8.3.js"></script>
   <script>
+  var currentforms;
+  
+	//This function creates a new anchor element and uses location
+	//properties (inherent) to get the desired URL data. Some String
+	//operations are used (to normalize results across browsers).
+	//http://james.padolsey.com/javascript/parsing-urls-with-the-dom/
+	function parseURL(url) {
+	   var a =  document.createElement('a');
+	   a.href = url;
+	   return {
+	       source: url,
+	       protocol: a.protocol.replace(':',''),
+	       host: a.hostname,
+	       port: a.port,
+	       query: a.search,
+	       params: (function(){
+	           var ret = {},
+	               seg = a.search.replace(/^\?/,'').split('&'),
+	               len = seg.length, i = 0, s;
+	           for (;i<len;i++) {
+	               if (!seg[i]) { continue; }
+	               s = seg[i].split('=');
+	               ret[s[0]] = s[1];
+	           }
+	           return ret;
+	       })(),
+	       file: (a.pathname.match(/\/([^\/?#]+)$/i) || [,''])[1],
+	       hash: a.hash.replace('#',''),
+	       path: a.pathname.replace(/^([^\/])/,'/$1'),
+	       relative: (a.href.match(/tps?:\/\/[^\/]+(.+)/) || [,''])[1],
+	       segments: a.pathname.replace(/^\//,'').split('/')
+	   };
+	}
+  
+  function repopulateForms() {
+	  $("#forms").html('<p>Loading forms...</p>');
+	  $.getJSON("formretrieval", function(forms) {
+		  var output = "";
+		  currentforms = forms;
+		  
+		  // make the forms div html content
+		  $.each(forms, function(index, form){
+			  output += '<div class="form" formid="' + form.key + '" localid="' + index + '" tags="'; 
+			  $.each(form.tags, function(index, tag){
+          output += ' ' + tag.value + ' ';
+        });
+			  output += '" \>\n';
+		    output += '  <div class="form-check-container">\n';
+        output += '    <input type="checkbox" class="form-checkbox" />\n';
+        output += '  </div>';
+        output += '  <div class="form-item-container">\n'
+			  output += '    <div class="form-title">' + parseURL(form.url).host + '</div>\n';
+			  output += '    <div class="form-tags">\n';
+			  $.each(form.tags, function(index, tag){
+				  output += '      <span class="form-tag"><span class="form-tag-value">' + tag.value + '</span>';
+				  output += '<a class="form-tag-delete" href="#">x</a></span>\n';
+			  });
+			  output += '      <input type="text" class="add-tag-input" />\n';
+			  output += '      <a class="form-tag-add" href="#">Add</a>\n';
+			  output += '    </div>\n';
+        output += '    <div class="form-fields">\n';
+        $.each(form.fields, function(index, field) {
+        	var value = field.attributes[0] == null ? '(no name)' : field.attributes[0].value;
+          output += '      <span class="form-field">' + value + '</span>\n';
+        });
+        output += '    </div>\n';
+        output += '  </div>\n';
+        output += '  <br clear="both" />';
+			  output += '</div>\n';
+		  });
+		  
+		  if (output == "") {
+			  output += '<p>No forms in the database</p>';
+		  }
+		  
+	    $("#forms").html(output);
+	    $("#forms .form:even").css('background-color', '#ddd');
+	    $("#forms .form:odd").css('background-color', '#eee');
+	  });
+  }
+  
   $(document).ready(function(){
+	  // Get the list of forms from the database
+		repopulateForms();
 	  
 	  // delete tag from form
 	  $(".form-tag-delete").live("click", function() {
@@ -28,38 +111,43 @@
       $.post("modifytags", { formkey: formkey, action: "delete", tag: tag}, function(data){
         $(deletebutton).parent().hide();
         $("#parseresults").html(data);
-        var tags = $('.result[formid="' + formkey + '"]').attr("tags");
+        var tags = $('.form[formid="' + formkey + '"]').attr("tags");
         tags = tags.replace(" " + tag + " ", " ");
-        $('.result[formid="' + formkey + '"]').attr("tags", tags);
+        $('.form[formid="' + formkey + '"]').attr("tags", tags);
       });
+      
+      return false;
     });
     
     // add tag to form
-    $(".form-tag-add").click(function(){
+    $(".form-tag-add").live("click", function(){
     	var tagname = $(this).siblings(".add-tag-input").val(); 
     	var formkey = $(this).closest('.form').attr("formid");
       var deletebutton = this;
       
     	$.post("modifytags", { formkey: formkey, action: "add", tag: tagname}, function(data){
-    		$(deletebutton).parent().prepend('<span class="form-tag">' + tagname + '<a class="form-tag-delete" href="#">X</a></span>');
+    		$(deletebutton).parent().prepend('<span class="form-tag">' + tagname + '<a class="form-tag-delete" href="#">x</a></span>');
+    		//alert(tagname);
     		$("#parseresults").html(data);
-    		var tags = $('.result[formid="' + formkey + '"]').attr("tags");
-    		$('.result[formid="' + formkey + '"]').attr("tags", " " + tags + " " + tagname);
+    		var tags = $('.form[formid="' + formkey + '"]').attr("tags");
+    		$('.form[formid="' + formkey + '"]').attr("tags", " " + tags + " " + tagname);
     	});
+    	return false;
     });
     
     // search button key up
     $("#search-input").keyup(function() {
     	if ($(this).val() == "") {
-    		$("#results").hide();
-    		$("#forms").show();
+    		$("#forms .form").show();
+ 	      $("#forms .form:even").css('background-color', '#ddd');
+ 	      $("#forms .form:odd").css('background-color', '#eee');
     	}
     	else {
     		var tag = $(this).val();
-    		$('.result').hide();
-    		$('.result[tags~="' + tag + '"]').show();
-    		$("#results").show();
-    		$("#forms").hide();
+    		$('#forms .form').hide();
+    		$('#forms .form[tags~="' + tag + '"]').show();
+ 	      $('#forms .form[tags~="' + tag + '"]:even').css('background-color', '#ddd');
+ 	      $('#forms .form[tags~="' + tag + '"]:odd').css('background-color', '#eee');
     	}
     });
     
@@ -70,94 +158,101 @@
     	alert(url);
     	$.get("pageparser", { page: url}, function(data) {
     		$("#parseresults").html(data);
+    		repopulateForms();
     	});
+    	return false;
+    });
+    
+    // checkbox - adding to checked form list
+    $(".form-checkbox").live("change", function() {
+    	var localid = $(this).closest(".form").attr("localid");
+    	var form = currentforms[localid];
+    	
+    	if ($(this).is(":checked") == true) {
+        $('#selectedforms .result[formid="' + form.key + '"]').remove();
+       	var output = "";
+       	output += '<div class="result" formid="' + form.key + '" localid="' + localid + '">\n';
+        output += '  <div class="result-title">' + parseURL(form.url).host + '</div>\n';
+        output += '  <div class="result-fields">\n';
+        $.each(form.fields, function(index, field) {
+        	var name = field.attributes[0].value;
+          output += '    <div class="result-field"><div class="result-field-name">' + name + '</div>\n';
+          output += '    <div class="result-field-input">\n';
+          output += '    <input type="' + field.type + '" />\n';
+          output += '    </div></div>\n';
+        });
+        output += '  </div><br clear="both" />\n';
+        output += '</div>\n';
+        $("#selectedforms").append(output);
+        $(".result:even").css('background-color', '#ddd');
+        $(".result:odd").css('background-color', '#eee');
+    	} else {
+    		$('#selectedforms .result[formid="' + form.key + '"]').remove();
+    		$(".result:even").css('background-color', '#ddd');
+        $(".result:odd").css('background-color', '#eee');
+    	}
+    });
+    
+    // Query command
+    $("#submitforms").click(function () {
+    	var forms = [];
+    	$('.result').each(function() {
+    		var formkey = $(this).attr('formid');
+    		var inputs = [];
+    		$('.result-field').each(function() {
+    			var name = $(this).children('.result-field-name').text();
+    			var value = $(this).find('input').val();
+    			inputs.push({name: name, value: value});
+    		});
+    		forms.push({id: formkey, fields: inputs});
+    	});
+    	$("#parseresults").html("Querying forms...");
+    	$.post('fillforms', {input: JSON.stringify(forms)}, function(data) {
+    		$("#parseresults").html(data);
+    	})
+    	return false;
+    });
+    
+    // Clear forms command
+    $("#clearforms").click(function() {
+    	$("#selectedforms").html("");
+    	$(".form-checkbox").removeAttr("checked");
+    	return false;
     });
   });
   </script>
 </head>
 
 <body>
+  <div id="search-bar">
+    <div id="search-bar-inner">
+      <span id="search-input-span"><input type="text" id="search-input" /></span>
+    </div>      
+  </div>
   <div id="body">
-    <div id="search-bar">
-      <div id="search-bar-inner">
-        <span id="search-input-span"><input type="text" id="search-input" /></span>
-      </div>      
+	  <div id="forms"></div>
+	  <div id="selectedformactions">
+      <a href="#" id="submitforms">Query</a>
+      <a href="#" id="clearforms">Clear</a>
     </div>
-    <div id="forms">
-    <% 
-    PersistenceManager pm = PMF.get().getPersistenceManager();
-    Query q = pm.newQuery("select from automaticformannotator.form.Form");
-
-    List<Form> results;
-    try {
-      results = (List<Form>) q.execute();
-      if (!results.isEmpty()) {
-    	  for (Form form : results)
-    	  {
-	    	  out.println("<div class=\"form\" formid=\"" + KeyFactory.keyToString(form.getKey()) + "\">");
-	    	  out.println("  <div class=\"form-title\">" + form.getUrl() + " : " + form.getKey().getId() + "</div>");
-	    	  out.println("  <div class=\"form-tags\">");
-	    	  for (Tag tag : form.getTags())
-	    	  {
-	    		  out.println("    <span class=\"form-tag\"><span class=\"form-tag-value\">" + tag.getValue() + "</span><a class=\"form-tag-delete\" href=\"#\">X</a></span>");
-	    	  }
-	    	  out.println("    <input type=\"text\" class=\"add-tag-input\" />");
-	    	  out.println("    <a class=\"form-tag-add\" href=\"#\">Add</a>");
-	    	  out.println("  </div>");
-	    	  out.println("</div>");
-    	  }
-      } else {
-    	  out.println("<p>No forms parsed yet.</p>");
-      }
-    %>
-    </div>
-    <div id="results">
-    <%
-      if (!results.isEmpty()) {
-        for (Form form : results)
-        {
-          out.print("<div class=\"result\" formid=\"" + KeyFactory.keyToString(form.getKey()) + "\" tags=\"" );
-          for (Tag t : form.getTags())
-          {
-        	  out.print(" " + t.getValue() + " ");
-          }
-          out.println("\" />");
-          out.println("  <div class=\"result-check-container\">");
-          out.println("    <input type=\"checkbox\" />");
-          out.println("  </div>");
-          out.println("  <div class=\"result-item-container\">");
-          
-          out.println("    <div class=\"result-title\">" + form.getUrl() + " : " + form.getKey().getId() + "</div>");
-          out.println("    <div class=\"result-fields\">");
-          for (Field f : form.getFields())
-          {
-            out.println("      <span class=\"result-field\">" + f.getType() + "</span>");
-          }
-          out.println("    </div>");
-          out.println("  </div>");
-          out.println("</div>");
-        }
-      } else {
-        
-      }
-    } finally {
-      pm.close();
-    }
-    %>
-      <div class="result"><a id="build-query">Build query</a></div>
-    </div>
+    <div id="selectedforms-container">
+	    <div id="selectedforms"></div>
+	  </div>
     <br clear="all" />
-    <div class="pageparser">
+    <div id="pageparser">
       <h2>Parse a web page</h2>
       <table>
         <tr>
-          <td></td>
+          <td>URL:</td>
           <td><input type="text" name="page" id="parsepageinput"/></td>
           <td><a id="parse-button" href="#">Parse</a></td>
         </tr>
       </table>
+      <br />
+      <h2>Server response</h2>
       <div id="parseresults"></div>
     </div>
   </div>
+  <div id="footer"></div>
 </body>
 </html>
